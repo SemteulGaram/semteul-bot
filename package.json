@@ -1,0 +1,25 @@
+{
+  "name": "semteul-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot @SemteulBot",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "keywords": [
+    "telegram",
+    "bot"
+  ],
+  "author": "SemteulGaram",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chalk": "^1.1.3",
+    "debug": "^2.2.0",
+    "node-telegram-bot-api": "^0.24.0",
+    "uuid": "^2.0.3"
+  }
+}
