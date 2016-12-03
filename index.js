@@ -17,13 +17,25 @@ bot.on("message", function(msg) {
   debug(msg);
 });
 
-bot.onText(/^\/qusghks .*/, function(msg, match) {
-  bot.sendMessage(msg.chat.id, enkoConverter(true, msg.text.substring(8, msg.text.length)), {
+bot.onText(/^\/enko .*/, function(msg, match) {
+  bot.sendMessage(msg.chat.id, enkoConverter(true, msg.text.substring(6, msg.text.length)), {
     reply_to_message_id: msg.message_id
   });
 });
 
-bot.onText(/^\/변환 .*/, function(msg, match) {
+bot.onText(/^\/영한 .*/, function(msg, match) {
+  bot.sendMessage(msg.chat.id, enkoConverter(true, msg.text.substring(4, msg.text.length)), {
+    reply_to_message_id: msg.message_id
+  });
+});
+
+bot.onText(/^\/koen .*/, function(msg, match) {
+  bot.sendMessage(msg.chat.id, enkoConverter(false, msg.text.substring(6, msg.text.length)), {
+    reply_to_message_id: msg.message_id
+  });
+});
+
+bot.onText(/^\/한영 .*/, function(msg, match) {
   bot.sendMessage(msg.chat.id, enkoConverter(false, msg.text.substring(4, msg.text.length)), {
     reply_to_message_id: msg.message_id
   });
