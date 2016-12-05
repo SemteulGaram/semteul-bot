@@ -25,7 +25,7 @@ bot.on("text", function(msg) {
   console.log(chalk.cyan("[CHAT]") + chalk.green(msg.chat.title || getFullName(msg.chat)) + chalk.yellow("<" + getFullName(msg.from) + ">") + msg.text);
 });
 
-bot.onText(/^\/enko .*/, function(msg, match) {
+bot.onText(/^\/enko .*/i, function(msg, match) {
   let cmd = msg.text.substring(6, msg.text.length);
   console.log(chalk.cyan("[CMD]") + "render: " + cmd);
   bot.sendMessage(msg.chat.id, enkoConverter(true, cmd), {
@@ -33,7 +33,7 @@ bot.onText(/^\/enko .*/, function(msg, match) {
   });
 });
 
-bot.onText(/^\/영한 .*/, function(msg, match) {
+bot.onText(/^\/영한 .*/i, function(msg, match) {
   let cmd = msg.text.substring(4, msg.text.length);
   console.log(chalk.cyan("[CMD]") + "render: " + cmd);
   bot.sendMessage(msg.chat.id, enkoConverter(true, cmd), {
@@ -41,7 +41,7 @@ bot.onText(/^\/영한 .*/, function(msg, match) {
   });
 });
 
-bot.onText(/^\/koen .*/, function(msg, match) {
+bot.onText(/^\/koen .*/i, function(msg, match) {
   let cmd = msg.text.substring(6, msg.text.length);
   console.log(chalk.cyan("[CMD]") + "render: " + cmd);
   bot.sendMessage(msg.chat.id, enkoConverter(false, cmd), {
@@ -49,7 +49,7 @@ bot.onText(/^\/koen .*/, function(msg, match) {
   });
 });
 
-bot.onText(/^\/한영 .*/, function(msg, match) {
+bot.onText(/^\/한영 .*/i, function(msg, match) {
   let cmd = msg.text.substring(4, msg.text.length);
   console.log(chalk.cyan("[CMD]") + "한영: " + cmd);
   bot.sendMessage(msg.chat.id, enkoConverter(false, cmd), {
@@ -57,29 +57,62 @@ bot.onText(/^\/한영 .*/, function(msg, match) {
   });
 });
 
-
-bot.onText(/^\/render .*/, function(msg, match) {
-  let cmd = msg.text.substring(8, msg.text.length);
-  render(msg, cmd, {width: 800, height: 600});
+bot.onText(/^\/render(@SemteulBot)?$/i, function(msg, match) {
+  bot.sendMessage(msg.chat.id, "Usage: /render [URL] [(JSON)options]\n"
+    + "options:\n"
+    + "- size: [{string} 'auto'|'sd'|'hd'|'uhd'] (default: 'sd')\n"
+    + "- origin: [{bool} dontCompress] (default: false)\n"
+    + "- delay: [{int} sec] (default: 2)", {
+    reply_to_message_id: msg.message_id
+  });
 });
 
-bot.onText(/^\/hdrender .*/, function(msg, match) {
-  let cmd = msg.text.substring(10, msg.text.length);
-  render(msg, cmd, {width: 1920, height: 1080});
-});
 
-function render(msg, cmd, size) {
-  console.log(chalk.cyan("[CMD]") + "render: " + cmd);
-  if(!cmd.match(/^http(s)?:\/\//)) {
-    cmd = "http://" + cmd;
+bot.onText(/^\/render(@SemteulBot)? .*/i, function(msg, match) {
+  const cmd = msg.text.substring(msg.text.indexOf(" ")+1, msg.text.length);
+  const spt = cmd.indexOf(" ");
+  let url = spt !== -1 ? cmd.substring(0, spt) : cmd;
+  let options = spt !== -1 ? cmd.substring(spt+1, cmd.length) : "{}";
+
+  if(!url.match(/^http(s)?:\/\//)) {
+    url = "http://" + url;
   }
+
+  try {
+    options = JSON.parse(options);
+  }catch(err) {
+    options = {err:err};
+  }
+
+  switch(options.size || "sd") {
+    default: options.size = {width: 800, height: 600};
+      options.err = new TypeError("Unknown size type: " + options.size);
+    break; case "sd": options.size = {width: 800, height: 600};
+    break; case "hd": options.size = {width: 1920, height: 1080};
+    break; case "uhd": options.size = {width: 4096, height: 2160};
+    break; case "auto": options.size = false;
+  }
+
+  options.delay = parseInt(options.delay) || 2;
+  if(options.delay > 60 || options.delay < 0) {
+    options.delay = 2;
+    options.err = new Error("Delay must between value (0 ~ 60)");
+  }
+
+  render(msg, url, options);
+});
+
+function render(msg, url, options) {
+  console.log(chalk.cyan("[CMD]") + "render: " + url);
+
 
   let cid = msg.chat.id;
   let mid, smsg, ppage, filename;
-  bot.sendMessage(cid, "`[=....]` Browser Initialize...", {
+
+  bot.sendMessage(cid, "`[=.....]` Browser Initialize...", {
     reply_to_message_id: msg.message_id,
     parse_mode: "Markdown"
-  })
+  })// message sent
   .then(sent => {
     mid = sent.message_id;
     smsg = {
@@ -90,41 +123,80 @@ function render(msg, cmd, size) {
     if(!pinstance)
       return phantom.create();
     return null;
-  })
+  })// phantom instance create
   .then(instance => {
     if(instance) pinstance = instance;
     return pinstance.createPage();
-  })
+  })// h=phantom page instance create
   .then(page => {
     ppage = page;
-    return page.property("viewportSize", size);
-  })
+    if(options.size) {
+      return ppage.property("viewportSize", options.size);
+    }else return;
+  })// set viewport size
   .then(() => {
-    bot.editMessageText("`[==...]` Connect to <" + cmd + ">...", smsg);
-    return ppage.open(cmd);
-  })
+    return //ppage.on("onError", function(msg) {console.log(msg)});
+  })// phantom inner error handleing
+  .then(() => {
+    return bot.editMessageText("`[==....]` Connect to <" + url + ">...", smsg);
+  })// message sent
+  .then(() => {
+    return ppage.open(url);
+  })// page open
   .then(status => {
     if(status === "fail") {
-      bot.editMessageText("`[=x...]` Connection fail", smsg);
+      bot.editMessageText("`[=x....]` Connection fail", smsg);
       throw {type: "CUSTOM", case: 1};
     }
-    bot.editMessageText("`[===..]` Rendering [" + cmd + "]...", smsg);
-    filename = "./" + uuid.v4() + ".jpeg";
+    return ppage.evaluate(function() {
+      var hroot = document.querySelector("html");
+      if(hroot.style.getPropertyValue("background-color") == null) {
+        hroot.setAttribute("style", "background-color:#fff");
+      }
+    });
+  })// set background-color white
+  .then(() => {
+    return new Promise(function(resolve) {
+      if(options.delay) {
+        bot.editMessageText("`[===...]` Delaying...", smsg)
+        .then(() => {
+          setTimeout(() => {resolve()} , options.delay * 1000);
+        });
+      }else {
+        resolve();
+      }
+    });
+  })// delaying
+  .then(() => {
+    filename = "./" + uuid() + ".jpeg";
+    return bot.editMessageText("`[====..]` Rendering [" + url + "]...", smsg);
+  })// message sent
+  .then(() => {
     return ppage.render(filename, {format: 'jpeg', quality: '100'});
-  })
+  })// rendering page
   .then(() => {
     if(!fs.existsSync(filename)) {
-      bot.editMessageText("`[==x..]` Rendering fail (maybe not HTML)", smsg);
+      bot.editMessageText("`[===x..]` Rendering fail (maybe not HTML)", smsg);
       throw {type: "CUSTOM", case: 2};
     }
-    bot.editMessageText("`[====.]` Sending photo...", smsg);
-    return bot.sendPhoto(cid, filename);
-  })
+    return bot.editMessageText("`[=====.]` Sending photo...", smsg);
+  })// message sent
+  .then(() => {
+    if(options.origin) {
+      return bot.sendDocument(cid, filename);
+    }else {
+      return bot.sendPhoto(cid, filename);
+    }
+  })// send photo
   .then(sentPhoto => {
-    bot.editMessageText("`[=====]` Done", smsg);
+    if(options.err) {
+      bot.editMessageText("`[======]` Done. but has options error("+options.err.__proto__.name+": "+options.err.message+")", smsg);
+    }else {
+      bot.editMessageText("`[======]` Done", smsg);
+    }
     ppage.close();
     fs.unlinkAsync(filename);
-  })
+  })// page close, file delete
   .catch(err => {
     if(err.type !== "CUSTOM") {
       console.log(chalk.red("[ERROR]"));
