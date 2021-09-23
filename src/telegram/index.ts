@@ -3,6 +3,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import { Logger } from '../logger';
 import enkoConverter from '../../external/enkoConverter.js';
 import chalk from 'chalk';
+import { applyBotTranslate } from './translate';
 
 const log = new Logger('bot');
 export const bot = new TelegramBot(process.env.TOKEN, {
@@ -60,3 +61,5 @@ function getFullname(userOrChat: TelegramBot.User | TelegramBot.Chat) {
     return userOrChat.first_name + ' ' + userOrChat.last_name;
   return userOrChat.first_name;
 }
+
+applyBotTranslate(bot);

@@ -48,7 +48,7 @@ export class Logger {
     // Logger.loggers.push(this);
   }
 
-  public base(logLevel: number = LogLevel.LOG, ...args: any[]): void {
+  public base(logLevel: number = LogLevel.LOG, args: any[]): void {
     if (this._opt.logLevel >= logLevel) {
       // eslint-disable-next-line no-console
       console[logLevel > LogLevel.WARN ? 'log' : 'error'].apply(console, [

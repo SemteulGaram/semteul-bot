@@ -1,4 +1,14 @@
+# Dependency
 node_modules/
+
+# Secrets
+secret/
+*.env
+
+# Build
+dist/
+
+# Resources
 *.log
 log
 *.jpeg
