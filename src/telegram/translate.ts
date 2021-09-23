@@ -188,6 +188,6 @@ export function applyBotTranslate(bot: TelegramBot) {
   generateBotGCPTranslateFunction(bot, 'toes', 'es');
   generateBotGCPTranslateFunction(bot, 'toko', 'ko');
   generateBotGoogleFreeTranslateFunction(bot, 'ftoen', 'en');
-  generateBotGoogleFreeTranslateFunction(bot, 'ftoen', 'es');
-  generateBotGoogleFreeTranslateFunction(bot, 'ftoen', 'ko');
+  generateBotGoogleFreeTranslateFunction(bot, 'ftoes', 'es');
+  generateBotGoogleFreeTranslateFunction(bot, 'ftoko', 'ko');
 }
