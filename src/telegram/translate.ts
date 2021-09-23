@@ -27,7 +27,7 @@ function generateBotGCPTranslateFunction(
 
   // Direct translate command
   bot.onText(
-    new RegExp(`^/${cmd}(?:@${process.env.BOT_ID})? ([\w\W]+)$`, 'i'),
+    new RegExp(`^/${cmd}(?:@${process.env.BOT_ID})? (.+)$`, 'is'),
     async (msg, match) => {
       try {
         const targetText = match[1];
@@ -110,7 +110,7 @@ function generateBotGoogleFreeTranslateFunction(
 
   // Direct translate command
   bot.onText(
-    new RegExp(`^/${cmd}(?:@${process.env.BOT_ID})? ([\w\W]+)$`, 'i'),
+    new RegExp(`^/${cmd}(?:@${process.env.BOT_ID})? (.+)$`, 'is'),
     async (msg, match) => {
       try {
         const targetText = match[1];
