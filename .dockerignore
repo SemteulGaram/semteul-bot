@@ -1,0 +1,13 @@
+# Dependency
+node_modules
+
+# Build
+dist
+
+# Secret (ignored)
+#secret
+#*.env
+
+# Logs
+*.log
+log
