@@ -10,4 +10,4 @@ import('./telegram/index')
   .then(() => {
     log.info('Telegram bot started');
   })
-  .catch(log.error);
+  .catch(log.error.bind(log));
