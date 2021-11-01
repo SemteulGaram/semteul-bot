@@ -20,6 +20,9 @@ COPY --from=builder /app/dist/ dist
 COPY --from=builder /app/node_modules/ node_modules
 
 # Copying required resources
+COPY external external
+
+# Copying secret resources
 COPY secret secret
 COPY .env* ./
 
