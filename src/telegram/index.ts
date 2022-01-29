@@ -1,4 +1,4 @@
-import TelegramBot from 'node-telegram-bot-api';
+import TgBot from 'node-telegram-bot-api';
 
 import { Logger } from '../logger';
 import enkoConverter from '../../external/enkoConverter.js';
@@ -6,11 +6,11 @@ import chalk from 'chalk';
 import { applyBotTranslate } from './translate';
 
 const log = new Logger('bot');
-export const bot = new TelegramBot(process.env.TOKEN, {
+export const bot = new TgBot(process.env.TOKEN, {
   polling: true,
 });
 
-bot.on('message', function (msg) {
+bot.on('message', function (msg: TelegramBot.Message) {
   log.trace(msg);
 });
 
