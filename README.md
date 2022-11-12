@@ -20,8 +20,8 @@ cd semteul-bot
 
 # Follow reference 3. Env setup
 
-docker build . -t <YOUR USERNAME>/semteul-bot
-docker run -d <YOUR USERNAME>/semteul-bot
+docker build . -t <YOUR USERNAME>/semteul-bot:<version>
+docker run -d <YOUR USERNAME>/semteul-bot:<version>
 ```
 
 ## 3. Env setup
