@@ -6,7 +6,9 @@ import TelegramBot from 'node-telegram-bot-api';
 import { Logger } from '../logger';
 
 const translate = new v2.Translate();
-const log = new Logger('bot>translate');
+const log = new Logger({
+  parentHierarchy: ['bot', 'translate'],
+});
 
 async function translateText(
   text: string,

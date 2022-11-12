@@ -33,59 +33,183 @@ export const VisualLogColorFunction = [
   chalk.white,
 ];
 
+export const HierarchyColorFunction = [
+  chalk.cyan,
+  chalk.cyanBright,
+  chalk.green,
+  chalk.greenBright,
+  chalk.yellow,
+  chalk.yellowBright,
+  chalk.magenta,
+  chalk.magentaBright,
+  chalk.blue,
+  chalk.blueBright,
+];
+
+export type ILog = {
+  level: LogLevel;
+  timestamp: Date;
+  hierarchy: string[];
+  content: string;
+};
+
 export class LoggerOptions {
-  logLevel: LogLevel;
+  logLevel?: LogLevel;
+  parentHierarchy: string[];
 }
 
 export class Logger {
-  // static loggers = [];
+  static loggers = [];
+  static globalLogLevel = LogLevel.LOG;
+
+  static DEFAULT_OPTIONS: LoggerOptions = {
+    logLevel: undefined,
+    parentHierarchy: [],
+  };
+
   constructor(
-    private _loggerName: string,
-    private _opt: LoggerOptions = {
-      logLevel: LogLevel.DEBUG,
-    },
+    private _opt: Partial<LoggerOptions> = { ...Logger.DEFAULT_OPTIONS },
   ) {
-    // Logger.loggers.push(this);
+    Object.keys(this._opt).forEach((key) => {
+      this._opt[key] === undefined &&
+        (this._opt[key] = Logger.DEFAULT_OPTIONS[key]);
+    });
+    Logger.loggers.push(this);
   }
 
-  public base(logLevel: number = LogLevel.LOG, args: any[]): void {
-    if (this._opt.logLevel >= logLevel) {
+  public static _generateHierarchyStringWithColorFunction(
+    hierarchy: string[],
+  ): string {
+    return hierarchy
+      .map((h, i) => {
+        return (HierarchyColorFunction[i] || ((v: string) => v))(h + '>');
+      })
+      .join('');
+  }
+
+  public base(
+    logLevel: number = LogLevel.LOG,
+    hierarchy: string[],
+    args: any[],
+  ): void {
+    let cLogLevel = this._opt.logLevel;
+    cLogLevel === undefined && (cLogLevel = Logger.globalLogLevel);
+    if (cLogLevel >= logLevel) {
       // eslint-disable-next-line no-console
       console[logLevel > LogLevel.WARN ? 'log' : 'error'].apply(console, [
-        chalk.cyan(`${this._loggerName}>`) +
-          VisualLogColorFunction[logLevel](`${VisualLogLevel[logLevel]}>`),
+        VisualLogColorFunction[logLevel](`${VisualLogLevel[logLevel]}>`) +
+          Logger._generateHierarchyStringWithColorFunction([
+            ...this._opt.parentHierarchy,
+            ...hierarchy,
+          ]),
         ...args,
       ]);
     }
   }
 
   public trace(...args: any[]): void {
-    this.base(LogLevel.TRACE, args);
+    this.base(LogLevel.TRACE, [], args);
   }
 
   public debug(...args: any[]): void {
-    this.base(LogLevel.DEBUG, args);
+    this.base(LogLevel.DEBUG, [], args);
   }
 
   public log(...args: any[]): void {
-    this.base(LogLevel.LOG, args);
+    this.base(LogLevel.LOG, [], args);
   }
 
   public info(...args: any[]): void {
-    this.base(LogLevel.INFO, args);
+    this.base(LogLevel.INFO, [], args);
   }
 
   public warn(...args: any[]): void {
-    this.base(LogLevel.WARN, args);
+    this.base(LogLevel.WARN, [], args);
   }
 
   public error(...args: any[]): void {
-    this.base(LogLevel.ERROR, args);
+    this.base(LogLevel.ERROR, [], args);
+  }
+
+  public t(...args: any[]): void {
+    this.trace(...args);
+  }
+
+  public d(...args: any[]): void {
+    this.debug(...args);
+  }
+
+  public l(...args: any[]): void {
+    this.log(...args);
+  }
+
+  public i(...args: any[]): void {
+    this.info(...args);
+  }
+
+  public w(...args: any[]): void {
+    this.warn(...args);
+  }
+
+  public e(...args: any[]): void {
+    this.error(...args);
+  }
+
+  public traceHierarchy(hierarchy: string[], ...args: any[]): void {
+    this.base(LogLevel.TRACE, hierarchy, args);
+  }
+
+  public debugHierarchy(hierarchy: string[], ...args: any[]): void {
+    this.base(LogLevel.DEBUG, hierarchy, args);
+  }
+
+  public logHierarchy(hierarchy: string[], ...args: any[]): void {
+    this.base(LogLevel.LOG, hierarchy, args);
+  }
+
+  public infoHierarchy(hierarchy: string[], ...args: any[]): void {
+    this.base(LogLevel.INFO, hierarchy, args);
+  }
+
+  public warnHierarchy(hierarchy: string[], ...args: any[]): void {
+    this.base(LogLevel.WARN, hierarchy, args);
+  }
+
+  public errorHierarchy(hierarchy: string[], ...args: any[]): void {
+    this.base(LogLevel.ERROR, hierarchy, args);
+  }
+
+  public tH(hierarchy: string[], ...args: any[]): void {
+    this.traceHierarchy(hierarchy, ...args);
+  }
+
+  public dH(hierarchy: string[], ...args: any[]): void {
+    this.debugHierarchy(hierarchy, ...args);
+  }
+
+  public lH(hierarchy: string[], ...args: any[]): void {
+    this.logHierarchy(hierarchy, ...args);
+  }
+
+  public iH(hierarchy: string[], ...args: any[]): void {
+    this.infoHierarchy(hierarchy, ...args);
+  }
+
+  public wH(hierarchy: string[], ...args: any[]): void {
+    this.warnHierarchy(hierarchy, ...args);
+  }
+
+  public eH(hierarchy: string[], ...args: any[]): void {
+    this.errorHierarchy(hierarchy, ...args);
   }
 
   public setLogLevel(logLevel: LogLevel): void {
     this._opt.logLevel = logLevel;
   }
+
+  public useGlobalLogLevel(): void {
+    this._opt.logLevel = null;
+  }
 }
 
-export const defaultLogger = new Logger('Global', new LoggerOptions());
+export const defaultLogger = new Logger();
