@@ -1,5 +1,5 @@
 import nodeFetch from 'node-fetch';
-import { Logger } from './logger';
+import { Logger } from '@/logger';
 
 const log = new Logger({
   parentHierarchy: ['bot-file-fetch'],
@@ -15,6 +15,9 @@ export async function botFileFetch(
   log.trace('request ' + filePath);
   const url = buildBotFileFetchUrl(filePath);
   const res = await nodeFetch(url);
+  if (!res.body) {
+    throw new Error('Failed to fetch file');
+  }
   return res.body;
   // return new Promise<NodeJS.ReadableStream>((resolve, reject) => {
   //   try {

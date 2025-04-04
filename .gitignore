@@ -3,12 +3,20 @@ node_modules/
 
 # Secrets
 secret/
+data/
 *.env
+*.db
 
 # Build
 dist/
+docker.sh
 
 # Resources
 *.log
 log
 *.jpeg
+
+# AI Rules
+.windsurfrules
+.codeiumignore
+AI.md

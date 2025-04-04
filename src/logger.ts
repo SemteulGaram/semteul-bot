@@ -1,14 +1,25 @@
 import chalk from 'chalk';
 
-export class LogLevel {
-  static OFF = 0;
-  static ERROR = 1;
-  static WARN = 2;
-  static INFO = 3;
-  static LOG = 4;
-  static DEBUG = 5;
-  static TRACE = 6;
-  static ALL = 7;
+// export class LogLevel {
+//   static OFF = 0;
+//   static ERROR = 1;
+//   static WARN = 2;
+//   static INFO = 3;
+//   static LOG = 4;
+//   static DEBUG = 5;
+//   static TRACE = 6;
+//   static ALL = 7;
+// }
+
+export enum LogLevel {
+  OFF = 0,
+  ERROR = 1,
+  WARN = 2,
+  INFO = 3,
+  LOG = 4,
+  DEBUG = 5,
+  TRACE = 6,
+  ALL = 7,
 }
 
 export const VisualLogLevel = [
@@ -55,11 +66,11 @@ export type ILog = {
 
 export class LoggerOptions {
   logLevel?: LogLevel;
-  parentHierarchy: string[];
+  parentHierarchy!: string[];
 }
 
 export class Logger {
-  static loggers = [];
+  static loggers: Logger[] = [];
   static globalLogLevel = LogLevel.LOG;
 
   static DEFAULT_OPTIONS: LoggerOptions = {
@@ -70,10 +81,12 @@ export class Logger {
   constructor(
     private _opt: Partial<LoggerOptions> = { ...Logger.DEFAULT_OPTIONS },
   ) {
-    Object.keys(this._opt).forEach((key) => {
-      this._opt[key] === undefined &&
-        (this._opt[key] = Logger.DEFAULT_OPTIONS[key]);
-    });
+    if (this._opt.logLevel === undefined) {
+      this._opt.logLevel = Logger.DEFAULT_OPTIONS.logLevel;
+    }
+    if (this._opt.parentHierarchy === undefined) {
+      this._opt.parentHierarchy = Logger.DEFAULT_OPTIONS.parentHierarchy.slice();
+    }
     Logger.loggers.push(this);
   }
 
@@ -85,6 +98,19 @@ export class Logger {
         return (HierarchyColorFunction[i] || ((v: string) => v))(h + '>');
       })
       .join('');
+  }
+
+  public clone(): Logger {
+    return new Logger({ ...this._opt });
+  }
+
+  public subLogger(moreHierarchy: string[]|string): Logger {
+    if (typeof moreHierarchy === 'string') {
+      moreHierarchy = [moreHierarchy];
+    }
+    const newLogger = this.clone();
+    newLogger._opt.parentHierarchy!.push(...moreHierarchy);
+    return newLogger;
   }
 
   public base(
@@ -99,7 +125,7 @@ export class Logger {
       console[logLevel > LogLevel.WARN ? 'log' : 'error'].apply(console, [
         VisualLogColorFunction[logLevel](`${VisualLogLevel[logLevel]}>`) +
           Logger._generateHierarchyStringWithColorFunction([
-            ...this._opt.parentHierarchy,
+            ...(this._opt.parentHierarchy || []),
             ...hierarchy,
           ]),
         ...args,
@@ -208,7 +234,7 @@ export class Logger {
   }
 
   public useGlobalLogLevel(): void {
-    this._opt.logLevel = null;
+    this._opt.logLevel = undefined;
   }
 }
 

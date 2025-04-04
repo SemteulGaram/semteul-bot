@@ -1,12 +1,12 @@
 {
   "name": "semteul-bot",
-  "version": "1.0.1",
-  "description": "Telegram bot @SemteulBot",
+  "version": "1.1.0",
+  "description": "Telegram bot @KyushBot",
   "main": "index.js",
   "scripts": {
     "tsnode": "ts-node/esm -r tsconfig-paths/register",
     "dev": "nodemon --config nodemon.json",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node ./dist/index.js",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -18,27 +18,44 @@
     "telegram",
     "bot"
   ],
-  "author": "SemteulGaram",
+  "author": "Kyush",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/translate": "^6.3.0",
-    "@vitalets/google-translate-api": "^7.0.0",
-    "chalk": "^4.1.2",
-    "dotenv-defaults": "^3.0.0",
-    "node-fetch": "^2.6.6",
-    "node-telegram-bot-api": "^0.54.0"
+    "@google-cloud/translate": "8.5.1",
+    "@google/genai": "0.7.0",
+    "@vitalets/google-translate-api": "9.2.1",
+    "@vlad-yakovlev/telegram-md": "2.0.0",
+    "better-sqlite3": "11.9.0",
+    "chalk": "5.4.1",
+    "dotenv-defaults": "5.0.2",
+    "node-fetch": "3.3.2",
+    "node-telegram-bot-api": "0.66.0",
+    "zod": "3.24.2"
   },
   "devDependencies": {
-    "@types/node": "^16.9.6",
-    "@types/node-telegram-bot-api": "^0.51.4",
-    "@typescript-eslint/eslint-plugin": "^4.31.2",
-    "@typescript-eslint/parser": "^4.31.2",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "nodemon": "^2.0.12",
-    "prettier": "^2.4.1",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.4.3"
+    "@types/better-sqlite3": "7.6.12",
+    "@types/node": "22.13.10",
+    "@types/node-telegram-bot-api": "0.64.7",
+    "@typescript-eslint/eslint-plugin": "8.26.1",
+    "@typescript-eslint/parser": "8.26.1",
+    "eslint": "9.22.0",
+    "eslint-config-prettier": "10.1.1",
+    "eslint-plugin-prettier": "5.2.3",
+    "nodemon": "3.1.9",
+    "prettier": "3.5.3",
+    "ts-node": "10.9.2",
+    "tsc-alias": "^1.8.13",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "5.8.2"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "better-sqlite3",
+      "protobufjs"
+    ],
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "protobufjs"
+    ]
   }
 }

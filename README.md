@@ -27,3 +27,27 @@ docker run -d <YOUR USERNAME>/semteul-bot:<version>
 ## 3. Env setup
 1. Copy `.env.defaults` -> `.env` and fill in the keys
 2. Copy (Google Cloud Platform - ServiceAccount json key) to `./secret/key.json`
+
+## Memo
+```
+{
+  message_id: ...,
+  from: {
+    id: ...,
+    is_bot: false,
+    first_name: ...,
+    username: ...,
+    language_code: ...
+  },
+  chat: {
+    id: ...,
+    first_name: ...,
+    username: ...,
+    type: 'private'
+  },
+  date: ...,
+  text: ...,
+  entities: [ { offset: 0, length: 3, type: 'text_mention', user: [Object] } ]
+}
+```
+멍청한 UserTable 대신 text_mention 써서 처리하도록 수정

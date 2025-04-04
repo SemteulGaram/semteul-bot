@@ -1,17 +1,17 @@
 # Environment
-FROM node:16.13.0-alpine3.14 as builder
+FROM node:22.14.0-alpine3.21 AS builder
 WORKDIR /app
 
 # Dependency
 COPY package*.json ./
-RUN npm install
+RUN npm i -g pnpm
 
 # Build
 COPY . .
-RUN npm run build && npm prune --production
+RUN pnpm install && pnpm run build && pnpm prune --production
 
 # Final Image
-FROM node:16.13.0-alpine3.14 as final
+FROM node:22.14.0-alpine3.21 AS final
 WORKDIR /app
 
 # Copying build output
@@ -21,10 +21,6 @@ COPY --from=builder /app/node_modules/ node_modules
 
 # Copying required resources
 COPY external external
-
-# Copying secret resources
-COPY secret secret
-COPY .env* ./
 
 # Ready
 CMD ["npm", "start"]

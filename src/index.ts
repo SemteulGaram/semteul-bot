@@ -1,13 +1,16 @@
+import fs from 'node:fs';
 import 'dotenv-defaults/config';
+import { Logger, LogLevel } from '@/logger';
+import { KyushBot } from '@/kyushbot';
 
-import { defaultLogger as log, Logger, LogLevel } from './logger';
+if (String(process.env.NODE_ENV).toLowerCase() === 'development') {
+  Logger.globalLogLevel = LogLevel.TRACE;
+}
 
-Logger.globalLogLevel = LogLevel.TRACE;
+// Ensure ./data directory exists
+if (!fs.existsSync('./data')) {
+  fs.mkdirSync('./data');
+}
 
-// https://github.com/yagop/node-telegram-bot-api/issues/319
-process.env.NTBA_FIX_319 = 'true';
-import('./telegram/index')
-  .then(() => {
-    log.info('Telegram bot started');
-  })
-  .catch(log.error.bind(log));
+// Initialize the bot
+KyushBot.getInstance();

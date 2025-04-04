@@ -7,6 +7,8 @@ dist
 # Secret (ignored)
 #secret
 #*.env
+#*.db
+data
 
 # Logs
 *.log
